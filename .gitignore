@@ -5,3 +5,8 @@ jspm_packages
 # Serverless directories
 .serverless
 
+# YML that injects environment variables
+configs.yml
+
+# Webstorm project directories
+.idea/
