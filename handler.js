@@ -1,6 +1,10 @@
 'use strict';
 
 const pgp = require('pg-promise')();
+const aws = require('aws-sdk');
+const lambda = new aws.Lambda({
+  region: 'us-east-1'
+});
 const db = pgp({
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
@@ -11,7 +15,7 @@ const db = pgp({
 function formResponse(body, statusCode) {
   return {
     statusCode: (statusCode) ? statusCode : 200,
-    body: body
+    body: JSON.stringify(body)
   }
 }
 
@@ -33,7 +37,7 @@ module.exports.GetMembers = async () => {
   return formResponse({members} );
 };
 
-module.exports.GetMember = async (event, context) => {
+module.exports.GetMember = async (event) => {
   const member_id = event['pathParameters']['member_id'];
 
   const sql = `SELECT json_build_object('member_id', m.member_id, 'firstname', m.firstname, 'lastname', m.lastname, 'nickname', m.nickname, 'phone', m.phone, 'quotes',
@@ -43,6 +47,69 @@ module.exports.GetMember = async (event, context) => {
   WHERE m.member_id = '${member_id}'`;
 
   const member = await db.map(sql, [], a => a.json);
+  return formResponse({member});
+};
+
+module.exports.CreateMember = async (event) => {
+  const uuidv1 = require('uuid/v1');
+  const member = {
+    member_id: uuidv1(),
+    firstname: event['pathParameters']['firstname'],
+    lastname: event['pathParameters']['lastname'],
+    nickname: event['pathParameters']['nickname'],
+    phone: event['pathParameters']['phone'],
+    is_active: (event['pathParameters']['is_active'] == null) ? true : event['pathParameters']['is_active']
+  };
+
+  await db.none('INSERT INTO members(member_id, firstname, lastname, nickname, phone, is_active) ' +
+      'VALUES( $1, $2, $3, $4, $5, $6 )', [
+    member.member_id,
+    member.firstname,
+    member.lastname,
+    member.nickname,
+    member.phone,
+    member.is_active
+  ]);
+  return formResponse({member});
+};
+
+module.exports.UpdateMember = async (event) => {
+  const member_id = event['pathParameters']['member_id'];
+  var newMember = {
+    firstname: event['pathParameters']['firstname'],
+    lastname: event['pathParameters']['lastname'],
+    nickname: event['pathParameters']['nickname'],
+    phone: event['pathParameters']['phone']
+  };
+
+  // Retrieve member as it currently exists
+  var sql = `SELECT firstname, lastname, nickname, phone FROM members WHERE member_id='${member_id}'`;
+  const oldMember = await db.one(sql);
+
+  // Copy props from oldMember to newMember if they don't exist in newMember
+  for (var property in oldMember) {
+    if (newMember[property] == null) {
+      newMember[property] = oldMember[property];
+    }
+  }
+
+  sql = `UPDATE members SET firstname = $1, lastname = $2, nickname = $3, phone = $4 WHERE member_id='${member_id}'`;
+  const memberValues = Object.values(newMember);
+  await db.none(sql, memberValues);
+
+  // Append member_id for response consistency
+  newMember['member_id'] = member_id;
+  return formResponse({member: newMember});
+};
+
+module.exports.ToggleMemberStatus = async (event) => {
+  const member_id = event['pathParameters']['member_id'];
+  const sql = `UPDATE members SET is_active = NOT is_active WHERE member_id='${member_id}' RETURNING is_active`;
+  const memberStatus = await db.one(sql);
+  const member = {
+    member_id,
+    is_active: memberStatus.is_active
+  };
   return formResponse({member});
 };
 

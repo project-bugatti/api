@@ -1,4 +1,4 @@
-service: api # NOTE: update this with your service name
+service: bugatti-api # NOTE: update this with your service name
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -61,7 +61,24 @@ functions:
       - http:
           path: members/{member_id}
           method: get
-
+  CreateMember:
+    handler: handler.CreateMember
+    events:
+      - http:
+          path: members/
+          method: post
+  UpdateMember:
+    handler: handler.UpdateMember
+    events:
+      - http:
+          path: members/{member_id}
+          method: put
+  ToggleMemberStatus:
+    handler: handler.ToggleMemberStatus
+    events:
+      - http:
+          path: members/{member_id}/toggleMemberStatus
+          method: get
   GetQuotes:
     handler: handler.GetQuotes
     events:
