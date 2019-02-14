@@ -12,8 +12,6 @@ provider:
     DB_NAME: ${file(./configs.yml):DB_NAME}
     DB_USER: ${file(./configs.yml):DB_USER}
     DB_PASSWORD: ${file(./configs.yml):DB_PASSWORD}
-    MEMBERS_TBL: members
-    QUOTES_TBL: quotes
 
 # you can overwrite defaults here
 #  stage: dev
@@ -50,46 +48,58 @@ provider:
 
 functions:
   GetMembers:
-    handler: handler.GetMembers
+    handler: members.GetMembers
     events:
       - http:
           path: members/
           method: get
   GetMember:
-    handler: handler.GetMember
+    handler: members.GetMember
     events:
       - http:
           path: members/{member_id}
           method: get
   CreateMember:
-    handler: handler.CreateMember
+    handler: members.CreateMember
     events:
       - http:
           path: members/
           method: post
   UpdateMember:
-    handler: handler.UpdateMember
+    handler: members.UpdateMember
     events:
       - http:
           path: members/{member_id}
           method: put
   ToggleMemberStatus:
-    handler: handler.ToggleMemberStatus
+    handler: members.ToggleMemberStatus
     events:
       - http:
-          path: members/{member_id}/toggleMemberStatus
+          path: members/{member_id}/ToggleMemberStatus
           method: get
   GetQuotes:
-    handler: handler.GetQuotes
+    handler: quotes.GetQuotes
     events:
       - http:
           path: quotes/
           method: get
   GetQuote:
-    handler: handler.GetQuote
+    handler: quotes.GetQuote
     events:
       - http:
           path: quotes/{quote_id}
+          method: get
+  CreateQuote:
+    handler: quotes.CreateQuote
+    events:
+      - http:
+          path: quotes
+          method: post
+  ToggleQuoteVisibility:
+    handler: quotes.ToggleQuoteVisibility
+    events:
+      - http:
+          path: quotes/{quote_id}/ToggleQuoteVisibility
           method: get
 
 #    The following are a few example events you can configure

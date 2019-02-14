@@ -1,7 +1,11 @@
 {
   "pathParameters": {
-    "member_id": "27feba0a-24fb-11e9-ab14-d663bd873d93",
-    "quote_id": "3766041c-24fb-11e9-ab14-d663bd873d93",
-    "nickname": "Big Ty"
+    "member_id" : "27feba0a-24fb-11e9-ab14-d663bd873d93",
+    "quote_id" : "3766041c-24fb-11e9-ab14-d663bd873d93"
+  },
+  "body" : {
+    "nickname" : "Big Ty 😎",
+    "quote_text" : "A quote from serverless",
+    "author_member_id" : "27feba0a-24fb-11e9-ab14-d663bd873d93"
   }
 }

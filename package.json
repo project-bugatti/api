@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/project-bugatti/api#readme",
   "dependencies": {
-    "aws-sdk": "^2.401.0",
     "pg-promise": "^8.5.5",
     "uuid": "^3.3.2"
   }

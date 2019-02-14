@@ -1,0 +1,118 @@
+'use strict';
+const { db } = require('./utils');
+const { formSuccessResponse } = require('./utils');
+const { formErrorResponse } = require('./utils');
+const uuidv1 = require('uuid/v1');
+
+module.exports.GetMembers = async () => {
+    try {
+        const members = await db.any('SELECT * FROM members');
+        return formSuccessResponse({members} );
+    } catch (e) {
+        return formErrorResponse(e);
+    }
+};
+
+module.exports.GetMember = async (event) => {
+    const member_id = event['pathParameters']['member_id'];
+
+    const sql = "SELECT json_build_object('member_id', m.member_id, 'firstname', m.firstname, 'lastname', m.lastname, " +
+        "'nickname', m.nickname, 'phone', m.phone, 'is_active', m.is_active,'quotes', " +
+        "(SELECT json_agg(json_build_object('quote_id', q.quote_id, 'quote_text', q.quote_text)) " +
+        "FROM quotes q WHERE q.author_member_id = m.member_id )) json " +
+        "FROM members m WHERE m.member_id = $1";
+    try {
+        const member = await db.map(sql, [member_id], a => a.json);
+        // Returns an array of Member objects of size one, so return 0th element in the array
+        return formSuccessResponse({member: member[0]});
+    } catch (e) {
+        return formErrorResponse(e);
+    }
+};
+
+module.exports.CreateMember = async (event) => {
+    const body = JSON.parse(event.body);
+    const firstname = body['firstname'], lastname = body['lastname'], phone = body['phone'];
+    if (firstname == null || lastname == null || phone == null) {
+        const error = { name: 'error', detail: 'Missing a required body parameter' };
+        return formErrorResponse(e);
+    }
+
+    const member = {
+        member_id: uuidv1(),
+        firstname,
+        lastname,
+        nickname: body['nickname'],
+        phone,
+        is_active: body['is_active'] || true
+    };
+
+    const sql = 'INSERT INTO members(member_id, firstname, lastname, nickname, phone, is_active) ' +
+        'VALUES( $1, $2, $3, $4, $5, $6 )';
+    try {
+        await db.none(sql, [
+            member.member_id,
+            member.firstname,
+            member.lastname,
+            member.nickname,
+            member.phone,
+            member.is_active
+        ]);
+        return formSuccessResponse({member});
+    } catch (e) {
+        return formErrorResponse(e);
+    }
+};
+
+module.exports.UpdateMember = async (event) => {
+    const member_id = event['pathParameters']['member_id'];
+    const body = JSON.parse(event.body);
+
+    let newMember = {
+        firstname: body['firstname'],
+        lastname: body['lastname'],
+        nickname: body['nickname'],
+        phone: body['phone']
+    };
+
+    let oldMember = {};
+
+    // Retrieve member as it currently exists
+    let sql = 'SELECT firstname, lastname, nickname, phone FROM members WHERE member_id = $1';
+    try {
+        oldMember = await db.one(sql, member_id);
+    } catch (e) {
+        return formErrorResponse(e);
+    }
+
+    // Copy props from oldMember to newMember if they don't exist in newMember
+    for (let property in oldMember) {
+        if (newMember[property] == null) {
+            newMember[property] = oldMember[property];
+        }
+    }
+
+    sql = 'UPDATE members SET firstname = $1, lastname = $2, nickname = $3, phone = $4 WHERE member_id = $5';
+    let memberValues = Object.values(newMember); // Array of updated member values
+    memberValues.push(member_id);
+    try {
+        await db.none(sql, memberValues);
+        // Append member_id for response consistency
+        newMember['member_id'] = member_id;
+        return formSuccessResponse({member: newMember});
+    } catch (e) {
+        return formErrorResponse(e);
+    }
+};
+
+module.exports.ToggleMemberStatus = async (event) => {
+    const member_id = event['pathParameters']['member_id'];
+    const sql = 'UPDATE members SET is_active = NOT is_active WHERE member_id = $1 RETURNING is_active';
+    try {
+        const memberStatus = await db.one(sql, member_id);
+        const member = { member_id, is_active: memberStatus.is_active };
+        return formSuccessResponse({member});
+    } catch (e) {
+        return formErrorResponse(e);
+    }
+};
