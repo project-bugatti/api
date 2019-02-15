@@ -10,3 +10,6 @@ configs.yml
 
 # Webstorm project directories
 .idea/
+
+# JSON file used for passing data to local serverless invocation
+data.json

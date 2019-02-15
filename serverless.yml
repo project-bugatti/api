@@ -47,6 +47,8 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
+
+  # MEMBER FUNCTIONS
   GetMembers:
     handler: members.GetMembers
     events:
@@ -77,6 +79,8 @@ functions:
       - http:
           path: members/{member_id}/ToggleMemberStatus
           method: get
+
+  # QUOTE FUNCTIONS
   GetQuotes:
     handler: quotes.GetQuotes
     events:
@@ -95,6 +99,12 @@ functions:
       - http:
           path: quotes
           method: post
+  UpdateQuote:
+    handler: quotes.UpdateQuote
+    events:
+      - http:
+          path: quotes/{quote_id}
+          method: put
   ToggleQuoteVisibility:
     handler: quotes.ToggleQuoteVisibility
     events:

@@ -102,11 +102,9 @@ module.exports.UpdateMember = async (event) => {
 
     sql = 'UPDATE members SET firstname = $1, lastname = $2, nickname = $3, phone = $4 WHERE member_id = $5';
     let memberValues = Object.values(newMember); // Array of updated member values
-    memberValues.push(member_id);
+    memberValues.push(member_id); // Append member_id for response consistency
     try {
         await db.none(sql, memberValues);
-        // Append member_id for response consistency
-        newMember['member_id'] = member_id;
         return formSuccessResponse({member: newMember});
     } catch (e) {
         return formErrorResponse(e);

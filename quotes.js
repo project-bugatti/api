@@ -71,7 +71,46 @@ module.exports.CreateQuote = async (event) => {
 };
 
 module.exports.UpdateQuote = async (event) => {
-    const quote_id = event['pathParameter']['quote_id'];
+    const quote_id = event['pathParameters']['quote_id'];
+    let body;
+    try {
+        body = JSON.parse(event.body);
+    } catch {
+        body = event.body;
+    }
+
+    let newQuote = {
+        quote_text: body['quote_text'],
+        author_member_id: body['author_member_id'],
+        content_id: body['author_member_id']
+    };
+
+    let oldQuote = {};
+
+    // Retrieve quote as it currently exists
+    let sql = 'SELECT quote_text, author_member_id, content_id FROM quotes WHERE quote_id = $1';
+    try {
+        oldQuote = await db.one(sql, [quote_id]);
+    } catch (e) {
+        return formErrorResponse(e);
+    }
+
+    // Copy props from oldQuote to newQuote if they don't exist in newQuote
+    for (let property in oldQuote) {
+        if (newQuote[property] == null) {
+            newQuote[property] = oldQuote[property];
+        }
+    }
+
+    sql = 'UPDATE quotes SET quote_text = $1, author_member_id = $2, content_id = $3';
+    let quoteValues = Object.values(newQuote); // Array of updated quote values
+    quoteValues.push(quote_id); // Append quote_id for response consistency
+    try {
+        await db.none(sql, quoteValues);
+        return formSuccessResponse({quote: newQuote});
+    } catch (e) {
+        return formErrorResponse(e);
+    }
 };
 
 module.exports.ToggleQuoteVisibility = async (event) => {
