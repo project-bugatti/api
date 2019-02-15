@@ -22,20 +22,28 @@ module.exports.GetMember = async (event) => {
         "FROM quotes q WHERE q.author_member_id = m.member_id )) json " +
         "FROM members m WHERE m.member_id = $1";
     try {
-        const member = await db.map(sql, [member_id], a => a.json);
-        // Returns an array of Member objects of size one, so return 0th element in the array
-        return formSuccessResponse({member: member[0]});
+        let member = (await db.map(sql, [member_id], a => a.json))[0];
+        // Returns an array of Member objects of size one, get the 0th element
+
+        // If member has no quotes, set quotes as empty array instead of null
+        if (!member.quotes) member.quotes = [];
+        return formSuccessResponse({member: member});
     } catch (e) {
         return formErrorResponse(e);
     }
 };
 
 module.exports.CreateMember = async (event) => {
-    const body = JSON.parse(event.body);
+    let body;
+    try {
+        body = JSON.parse(event.body);
+    } catch {
+        body = event.body;
+    }
     const firstname = body['firstname'], lastname = body['lastname'], phone = body['phone'];
     if (firstname == null || lastname == null || phone == null) {
         const error = { name: 'error', detail: 'Missing a required body parameter' };
-        return formErrorResponse(e);
+        return formErrorResponse(error);
     }
 
     const member = {

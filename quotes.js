@@ -5,11 +5,10 @@ const { formErrorResponse } = require('./utils');
 const uuidv1 = require('uuid/v1');
 
 module.exports.GetQuotes = async () => {
-    const sql = `SELECT json_build_object('quote_id', q.quote_id, 'quote_text', q.quote_text, 'content_id', q.content_id, 'member',
-                    (SELECT json_build_object('member_id', m.member_id, 'firstname', m.firstname, 'lastname', m.lastname,
-                            'nickname', m.nickname, 'phone', m.phone)
-	                FROM members m WHERE m.member_id = q.author_member_id )) json
-                FROM quotes q`;
+    const sql = "SELECT json_build_object('quote_id', q.quote_id, 'quote_text', q.quote_text, 'content_id', q.content_id, 'member', " +
+        " (SELECT json_build_object('member_id', m.member_id, 'firstname', m.firstname, 'lastname', m.lastname, " +
+        " 'nickname', m.nickname, 'phone', m.phone) " +
+        " FROM members m WHERE m.member_id = q.author_member_id )) json FROM quotes q";
     try {
         const quotes = await db.map(sql, [], a => a.json);
         return formSuccessResponse( {quotes});
@@ -35,7 +34,12 @@ module.exports.GetQuote = async (event) => {
 };
 
 module.exports.CreateQuote = async (event) => {
-    const body = JSON.parse(event.body);
+    let body;
+    try {
+        body = JSON.parse(event.body);
+    } catch {
+        body = event.body;
+    }
     const quote_text = body['quote_text'], author_member_id = body['author_member_id'];
     if (quote_text == null || author_member_id == null) {
         const error = { name: 'error', detail: 'Missing a required body parameter' };
@@ -64,6 +68,10 @@ module.exports.CreateQuote = async (event) => {
         console.log(e);
         return formErrorResponse(e);
     }
+};
+
+module.exports.UpdateQuote = async (event) => {
+    const quote_id = event['pathParameter']['quote_id'];
 };
 
 module.exports.ToggleQuoteVisibility = async (event) => {

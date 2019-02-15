@@ -1,11 +1,14 @@
 {
   "pathParameters": {
-    "member_id" : "27feba0a-24fb-11e9-ab14-d663bd873d93",
+    "member_id" : "cffdceee-3135-11e9-b210-d663bd873d93",
     "quote_id" : "3766041c-24fb-11e9-ab14-d663bd873d93"
   },
   "body" : {
-    "nickname" : "Big Ty 😎",
-    "quote_text" : "A quote from serverless",
-    "author_member_id" : "27feba0a-24fb-11e9-ab14-d663bd873d93"
+    "firstname" : "Andrew",
+    "lastname" : "Taylor",
+    "nickname" : "AT",
+    "phone" : "8601234444",
+    "author_member_id" : "cffdceee-3135-11e9-b210-d663bd873d93",
+    "quote_text" : "Hello, world!"
   }
 }
