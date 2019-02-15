@@ -37,7 +37,7 @@ module.exports.CreateQuote = async (event) => {
     let body;
     try {
         body = JSON.parse(event.body);
-    } catch {
+    } catch (e) {
         body = event.body;
     }
     const quote_text = body['quote_text'], author_member_id = body['author_member_id'];
@@ -75,7 +75,7 @@ module.exports.UpdateQuote = async (event) => {
     let body;
     try {
         body = JSON.parse(event.body);
-    } catch {
+    } catch (e) {
         body = event.body;
     }
 
@@ -90,7 +90,7 @@ module.exports.UpdateQuote = async (event) => {
     // Retrieve quote as it currently exists
     let sql = 'SELECT quote_text, author_member_id, content_id FROM quotes WHERE quote_id = $1';
     try {
-        oldQuote = await db.one(sql, [quote_id]);
+        oldQuote = await db.one(sql, quote_id);
     } catch (e) {
         return formErrorResponse(e);
     }

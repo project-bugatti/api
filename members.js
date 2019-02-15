@@ -37,9 +37,10 @@ module.exports.CreateMember = async (event) => {
     let body;
     try {
         body = JSON.parse(event.body);
-    } catch {
+    } catch (e) {
         body = event.body;
     }
+
     const firstname = body['firstname'], lastname = body['lastname'], phone = body['phone'];
     if (firstname == null || lastname == null || phone == null) {
         const error = { name: 'error', detail: 'Missing a required body parameter' };
@@ -74,7 +75,12 @@ module.exports.CreateMember = async (event) => {
 
 module.exports.UpdateMember = async (event) => {
     const member_id = event['pathParameters']['member_id'];
-    const body = JSON.parse(event.body);
+    let body;
+    try {
+        body = JSON.parse(event.body);
+    } catch (e) {
+        body = event.body;
+    }
 
     let newMember = {
         firstname: body['firstname'],
@@ -104,7 +110,7 @@ module.exports.UpdateMember = async (event) => {
     let memberValues = Object.values(newMember); // Array of updated member values
     memberValues.push(member_id); // Append member_id for response consistency
     try {
-        await db.none(sql, memberValues);
+        await db.none(sql, [memberValues]);
         return formSuccessResponse({member: newMember});
     } catch (e) {
         return formErrorResponse(e);

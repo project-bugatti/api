@@ -48,7 +48,7 @@ provider:
 
 functions:
 
-  # MEMBER FUNCTIONS
+# MEMBER FUNCTIONS
   GetMembers:
     handler: members.GetMembers
     events:
@@ -80,7 +80,7 @@ functions:
           path: members/{member_id}/ToggleMemberStatus
           method: get
 
-  # QUOTE FUNCTIONS
+# QUOTE FUNCTIONS
   GetQuotes:
     handler: quotes.GetQuotes
     events:
@@ -97,7 +97,7 @@ functions:
     handler: quotes.CreateQuote
     events:
       - http:
-          path: quotes
+          path: quotes/
           method: post
   UpdateQuote:
     handler: quotes.UpdateQuote
