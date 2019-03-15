@@ -5,9 +5,9 @@ const { formErrorResponse } = require('./utils');
 const uuidv1 = require('uuid/v1');
 
 module.exports.GetQuotes = async () => {
-    const sql = "SELECT json_build_object('quote_id', q.quote_id, 'quote_text', q.quote_text, 'content_id', q.content_id, 'member', " +
+    const sql = "SELECT json_build_object('quote_id', q.quote_id, 'quote_text', q.quote_text, 'member', " +
         " (SELECT json_build_object('member_id', m.member_id, 'firstname', m.firstname, 'lastname', m.lastname, " +
-        " 'nickname', m.nickname, 'phone', m.phone) " +
+        " 'nickname', m.nickname) " +
         " FROM members m WHERE m.member_id = q.author_member_id )) json FROM quotes q";
     try {
         const quotes = await db.map(sql, [], a => a.json);
@@ -40,18 +40,16 @@ module.exports.CreateQuote = async (event) => {
     } catch (e) {
         body = event.body;
     }
-    const quote_text = body['quote_text'], author_member_id = body['author_member_id'];
-    if (quote_text == null || author_member_id == null) {
+    if (body.quote_text == null || body.author_member_id == null) {
         const error = { name: 'error', detail: 'Missing a required body parameter' };
         return formErrorResponse(error);
     }
 
     const quote = {
         quote_id: uuidv1(),
-        quote_text,
-        author_member_id,
-        content_id: event['content_id'],
-        is_visible: event['is_visible'] || true
+        quote_text: body.quote_text,
+        author_member_id: body.author_member_id,
+        is_visible: body.is_visible || true
     };
     const sql = 'INSERT INTO quotes(quote_id, quote_text, author_member_id, content_id, is_visible) ' +
         'VALUES( $1, $2, $3, $4, $5 )';
@@ -65,13 +63,12 @@ module.exports.CreateQuote = async (event) => {
         ]);
         return formSuccessResponse( {quote});
     } catch (e) {
-        console.log(e);
         return formErrorResponse(e);
     }
 };
 
 module.exports.UpdateQuote = async (event) => {
-    const quote_id = event['pathParameters']['quote_id'];
+    const quote_id = event.pathParameters.quote_id;
     let body;
     try {
         body = JSON.parse(event.body);
@@ -80,17 +77,15 @@ module.exports.UpdateQuote = async (event) => {
     }
 
     let newQuote = {
-        quote_text: body['quote_text'],
-        author_member_id: body['author_member_id'],
-        content_id: body['author_member_id']
+        quote_text: body.quote_text,
+        author_member_id: body.author_member_id
     };
 
-    let oldQuote = {};
-
     // Retrieve quote as it currently exists
+    let oldQuote = {};
     let sql = 'SELECT quote_text, author_member_id, content_id FROM quotes WHERE quote_id = $1';
     try {
-        oldQuote = await db.one(sql, quote_id);
+        oldQuote = await db.one(sql, [quote_id]);
     } catch (e) {
         return formErrorResponse(e);
     }
@@ -102,7 +97,7 @@ module.exports.UpdateQuote = async (event) => {
         }
     }
 
-    sql = 'UPDATE quotes SET quote_text = $1, author_member_id = $2, content_id = $3';
+    sql = 'UPDATE quotes SET quote_text = $1, author_member_id = $2';
     let quoteValues = Object.values(newQuote); // Array of updated quote values
     quoteValues.push(quote_id); // Append quote_id for response consistency
     try {

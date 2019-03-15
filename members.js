@@ -5,9 +5,13 @@ const { formErrorResponse } = require('./utils');
 const uuidv1 = require('uuid/v1');
 
 module.exports.GetMembers = async (event) => {
-    const isActive = true;
+    let isActiveParameter = event.queryStringParameters.isActive;
+    if (isActiveParameter == null || isActiveParameter == 'undefined') {
+        isActiveParameter = true;
+    }
+
     try {
-        const members = await db.any('SELECT * FROM members WHERE is_active = $1', [isActive]);
+        const members = await db.any('SELECT * FROM members WHERE is_active = $1', [isActiveParameter]);
         return formSuccessResponse({members} );
     } catch (e) {
         return formErrorResponse(e);
@@ -15,7 +19,7 @@ module.exports.GetMembers = async (event) => {
 };
 
 module.exports.GetMember = async (event) => {
-    const member_id = event['pathParameters']['member_id'];
+    const member_id = event.pathParameters.member_id;
 
     const sql = "SELECT json_build_object('member_id', m.member_id, 'firstname', m.firstname, 'lastname', m.lastname, " +
         "'nickname', m.nickname, 'phone', m.phone, 'is_active', m.is_active,'quotes', " +
@@ -42,7 +46,7 @@ module.exports.CreateMember = async (event) => {
         body = event.body;
     }
 
-    const firstname = body['firstname'], lastname = body['lastname'], phone = body['phone'];
+    const firstname = body.firstname, lastname = body.lastname, phone = body.phone;
     if (firstname == null || lastname == null || phone == null) {
         const error = { name: 'error', detail: 'Missing a required body parameter' };
         return formErrorResponse(error);
@@ -52,9 +56,9 @@ module.exports.CreateMember = async (event) => {
         member_id: uuidv1(),
         firstname,
         lastname,
-        nickname: body['nickname'],
+        nickname: body.nickname,
         phone,
-        is_active: body['is_active'] || true
+        is_active: body.is_active || true
     };
 
     const sql = 'INSERT INTO members(member_id, firstname, lastname, nickname, phone, is_active) ' +
@@ -75,7 +79,7 @@ module.exports.CreateMember = async (event) => {
 };
 
 module.exports.UpdateMember = async (event) => {
-    const member_id = event['pathParameters']['member_id'];
+    const member_id = event.pathParameters.member_id;
     let body;
     try {
         body = JSON.parse(event.body);
@@ -84,10 +88,10 @@ module.exports.UpdateMember = async (event) => {
     }
 
     let newMember = {
-        firstname: body['firstname'],
-        lastname: body['lastname'],
-        nickname: body['nickname'],
-        phone: body['phone']
+        firstname: body.firstname,
+        lastname: body.lastname,
+        nickname: body.nickname,
+        phone: body.phone
     };
 
     let oldMember = {};
@@ -119,7 +123,7 @@ module.exports.UpdateMember = async (event) => {
 };
 
 module.exports.ToggleMemberStatus = async (event) => {
-    const member_id = event['pathParameters']['member_id'];
+    const member_id = event.pathParameters.member_id;
     const sql = 'UPDATE members SET is_active = NOT is_active WHERE member_id = $1 RETURNING is_active';
     try {
         const memberStatus = await db.one(sql, member_id);
