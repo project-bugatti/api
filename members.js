@@ -4,9 +4,10 @@ const { formSuccessResponse } = require('./utils');
 const { formErrorResponse } = require('./utils');
 const uuidv1 = require('uuid/v1');
 
-module.exports.GetMembers = async () => {
+module.exports.GetMembers = async (event) => {
+    const isActive = true;
     try {
-        const members = await db.any('SELECT * FROM members');
+        const members = await db.any('SELECT * FROM members WHERE is_active = $1', [isActive]);
         return formSuccessResponse({members} );
     } catch (e) {
         return formErrorResponse(e);
