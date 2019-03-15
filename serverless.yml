@@ -55,30 +55,35 @@ functions:
       - http:
           path: members/
           method: get
+          private: true
   GetMember:
     handler: members.GetMember
     events:
       - http:
           path: members/{member_id}
           method: get
+          private: true
   CreateMember:
     handler: members.CreateMember
     events:
       - http:
           path: members/
           method: post
+          private: true
   UpdateMember:
     handler: members.UpdateMember
     events:
       - http:
           path: members/{member_id}
           method: put
+          private: true
   ToggleMemberStatus:
     handler: members.ToggleMemberStatus
     events:
       - http:
           path: members/{member_id}/ToggleMemberStatus
           method: get
+          private: true
 
 # QUOTE FUNCTIONS
   GetQuotes:
@@ -87,30 +92,49 @@ functions:
       - http:
           path: quotes/
           method: get
+          private: true
   GetQuote:
     handler: quotes.GetQuote
     events:
       - http:
           path: quotes/{quote_id}
           method: get
+          private: true
   CreateQuote:
     handler: quotes.CreateQuote
     events:
       - http:
           path: quotes/
           method: post
+          private: true
   UpdateQuote:
     handler: quotes.UpdateQuote
     events:
       - http:
           path: quotes/{quote_id}
           method: put
+          private: true
+  JoinQuoteMedia:
+    handler: quotes.JoinQuoteMedia
+    events:
+      - http:
+          path: quotes/{quote_id}/AddMedia/{media_id}
+          method: get
+          private: true
+  RemoveMediaFromQuote:
+    handler: quotes.RemoveMediaFromQuote
+    events:
+      - http:
+          path: quotes/{quote_id}/RemoveMedia/{media_id}
+          method: get
+          private: true
   ToggleQuoteVisibility:
     handler: quotes.ToggleQuoteVisibility
     events:
       - http:
           path: quotes/{quote_id}/ToggleQuoteVisibility
           method: get
+          private: true
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

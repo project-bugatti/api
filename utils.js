@@ -8,11 +8,14 @@ module.exports.formSuccessResponse = function (body, statusCode) {
 };
 
 module.exports.formErrorResponse = function (e, statusCode) {
-    const error = {
-        name: e['name'],
-        message: e['message'],
-        detail: e['detail'],
-        code: e['code']
+    let error = {};
+    if (e) {
+        error = {
+            name: e['name'] || null,
+            message: e['message'] || null,
+            detail: e['detail'] || null,
+            code: e['code'] || null
+        }
     };
     return {
         statusCode: statusCode || 400,

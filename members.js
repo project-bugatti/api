@@ -5,13 +5,15 @@ const { formErrorResponse } = require('./utils');
 const uuidv1 = require('uuid/v1');
 
 module.exports.GetMembers = async (event) => {
-    let isActiveParameter = event.queryStringParameters.isActive;
-    if (isActiveParameter == null || isActiveParameter == 'undefined') {
-        isActiveParameter = true;
+    let isActive;
+    try {
+        isActive = event.queryStringParameters.isActive;
+    } catch (e) {
+        isActive = true;
     }
 
     try {
-        const members = await db.any('SELECT * FROM members WHERE is_active = $1', [isActiveParameter]);
+        const members = await db.any('SELECT * FROM members WHERE is_active = $1', [isActive]);
         return formSuccessResponse({members} );
     } catch (e) {
         return formErrorResponse(e);
