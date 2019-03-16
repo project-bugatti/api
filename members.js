@@ -18,6 +18,9 @@ module.exports.GetMembers = async (event) => {
   }
 };
 
+/*
+  Get member information and all quotes and media linked to member
+*/
 module.exports.GetMember = async (event) => {
   const member_id = event.pathParameters.member_id;
   const sql =
@@ -129,6 +132,40 @@ module.exports.UpdateMember = async (event) => {
   try {
     await db.none(sql, [memberValues]);
     return formSuccessResponse({member: newMember});
+  } catch (e) {
+    return formErrorResponse(e);
+  }
+};
+
+module.exports.LinkMemberMedia = async (event) => {
+  const member_id = event.pathParameters.member_id;
+  const media_id = event.pathParameters.media_id;
+
+  const sql = 'INSERT INTO members_media VALUES($1, $2)';
+  try {
+    await db.none(sql, [member_id, media_id]);
+    return formSuccessResponse();
+  } catch (e) {
+    return formErrorResponse(e);
+  }
+};
+
+module.exports.UnlinkMemberMedia = async (event) => {
+  const member_id = event.pathParameters.member_id;
+  const media_id = event.pathParameters.media_id;
+
+  const sql = 'DELETE FROM members_media WHERE member_id = $1 AND media_id = $2';
+  try {
+    const result = await db.result(sql, [member_id, media_id]);
+    if (result.rowCount === 1) {
+      return formSuccessResponse();
+    } else {
+      const error = {
+        message: 'Combination of member and media item does not exist; cannot remove link that does not exist.',
+        detail: 'Delete query returned zero rows affected'
+      };
+      return formErrorResponse(error);
+    }
   } catch (e) {
     return formErrorResponse(e);
   }

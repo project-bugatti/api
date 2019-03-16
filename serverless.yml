@@ -77,6 +77,20 @@ functions:
           path: members/{member_id}
           method: put
           private: true
+  LinkMemberMedia:
+    handler: members.LinkMemberMedia
+    events:
+      - http:
+          path: members/{member_id}/LinkMedia/{media_id}
+          method: get
+          private: true
+  UnlinkMemberMedia:
+    handler: members.UnlinkMemberMedia
+    events:
+      - http:
+          path: members/{member_id}/UnlinkMedia/{media_id}
+          method: get
+          private: true
   ToggleMemberStatus:
     handler: members.ToggleMemberStatus
     events:
@@ -114,18 +128,18 @@ functions:
           path: quotes/{quote_id}
           method: put
           private: true
-  JoinQuoteMedia:
-    handler: quotes.JoinQuoteMedia
+  LinkQuoteMedia:
+    handler: quotes.LinkQuoteMedia
     events:
       - http:
-          path: quotes/{quote_id}/AddMedia/{media_id}
+          path: quotes/{quote_id}/LinkMedia/{media_id}
           method: get
           private: true
-  RemoveMediaFromQuote:
-    handler: quotes.RemoveMediaFromQuote
+  UnlinkQuoteMedia:
+    handler: quotes.UnlinkQuoteMedia
     events:
       - http:
-          path: quotes/{quote_id}/RemoveMedia/{media_id}
+          path: quotes/{quote_id}/UnlinkMedia/{media_id}
           method: get
           private: true
   ToggleQuoteVisibility:

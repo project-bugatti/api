@@ -64,14 +64,13 @@ module.exports.CreateQuote = async (event) => {
     author_member_id: body.author_member_id,
     is_visible: body.is_visible || true
   };
-  const sql = 'INSERT INTO quotes(quote_id, quote_text, author_member_id, content_id, is_visible) ' +
+  const sql = 'INSERT INTO quotes(quote_id, quote_text, author_member_id, is_visible) ' +
     'VALUES( $1, $2, $3, $4, $5 )';
   try {
     await db.none(sql, [
       quote.quote_id,
       quote.quote_text,
       quote.author_member_id,
-      quote.content_id,
       quote.is_visible
     ]);
     return formSuccessResponse( {quote});
@@ -99,7 +98,7 @@ module.exports.UpdateQuote = async (event) => {
 
   // Retrieve quote as it currently exists
   let oldQuote = {};
-  let sql = 'SELECT quote_text, author_member_id, content_id FROM quotes WHERE quote_id = $1';
+  let sql = 'SELECT quote_text, author_member_id FROM quotes WHERE quote_id = $1';
   try {
     oldQuote = await db.one(sql, [quote_id]);
   } catch (e) {
@@ -127,7 +126,7 @@ module.exports.UpdateQuote = async (event) => {
 /*
   Link a media item to a quote
 */
-module.exports.JoinQuoteMedia = async (event) => {
+module.exports.LinkQuoteMedia = async (event) => {
   const quote_id = event.pathParameters.quote_id;
   const media_id = event.pathParameters.media_id;
 
@@ -143,7 +142,7 @@ module.exports.JoinQuoteMedia = async (event) => {
 /*
   Remove the link between a quote and media item
 */
-module.exports.RemoveMediaFromQuote = async (event) => {
+module.exports.UnlinkQuoteMedia = async (event) => {
   const quote_id = event.pathParameters.quote_id;
   const media_id = event.pathParameters.media_id;
 
@@ -154,7 +153,7 @@ module.exports.RemoveMediaFromQuote = async (event) => {
       return formSuccessResponse();
     } else {
       const error = {
-        message: 'Combination of quote and media item does not exist',
+        message: 'Combination of quote and media item does not exist; cannot remove link that does not exist.',
         detail: 'Delete query returned zero rows affected'
       };
       return formErrorResponse(error);
