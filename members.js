@@ -38,16 +38,18 @@ module.exports.GetMember = async (event) => {
     " ) json " +
     " FROM members m WHERE m.member_id = $1";
   try {
+    // Returns an array of size one
     let member = await db.map(sql, [member_id], a => a.json);
-    // If no quotes or media exists, return an empty array instead of null
+    // get 0th element in the array
+    member = member[0];
+    // If no quotes or media exists, return empty arrays instead of null
     if (!member.quotes) {
       member.quotes = [];
     }
     if (!member.media) {
       member.media = [];
     }
-    // Returns an array of Quote objects of size one, so return 0th element in the array
-    return formSuccessResponse({member: member[0]});
+    return formSuccessResponse({member: member});
   } catch (e) {
     return formErrorResponse(e);
   }
@@ -95,7 +97,7 @@ module.exports.CreateMember = async (event) => {
 
 module.exports.UpdateMember = async (event) => {
   const member_id = event.pathParameters.member_id;
-  let body;
+  let body = {};
   try {
     body = JSON.parse(event.body);
   } catch (e) {
@@ -109,9 +111,8 @@ module.exports.UpdateMember = async (event) => {
     phone: body.phone
   };
 
-  let oldMember = {};
-
   // Retrieve member as it currently exists
+  let oldMember = {};
   let sql = 'SELECT firstname, lastname, nickname, phone FROM members WHERE member_id = $1';
   try {
     oldMember = await db.one(sql, member_id);
@@ -119,19 +120,21 @@ module.exports.UpdateMember = async (event) => {
     return formErrorResponse(e);
   }
 
+  let memberKeys = Object.getOwnPropertyNames(oldMember);
+
   // Copy props from oldMember to newMember if they don't exist in newMember
-  for (let property in oldMember) {
-    if (newMember[property] == null) {
-      newMember[property] = oldMember[property];
+  for (var i = 0; i < memberKeys.length; i++) {
+    if (newMember[memberKeys[i]] == null) {
+      newMember[memberKeys[i]] = oldMember[memberKeys[i]];
     }
   }
 
   sql = 'UPDATE members SET firstname = $1, lastname = $2, nickname = $3, phone = $4 WHERE member_id = $5';
-  let memberValues = Object.values(newMember); // Array of updated member values
-  memberValues.push(member_id); // Append member_id for response consistency
+  let newMemberValues = Object.values(newMember); // Array of updated member values
+  newMemberValues.push(member_id); // Append member_id for response consistency
   try {
-    await db.none(sql, [memberValues]);
-    return formSuccessResponse({member: newMember});
+    await db.none(sql, newMemberValues);
+    return formSuccessResponse({member: newMemberValues});
   } catch (e) {
     return formErrorResponse(e);
   }

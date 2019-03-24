@@ -38,9 +38,15 @@ module.exports.GetQuote = async (event) => {
     " )) json " +
     " FROM quotes q WHERE q.quote_id = $1;";
   try {
-    const quote = await db.map(sql, [quote_id], a => a.json);
-    // Returns an array of Quote objects of size one, so return 0th element in the array
-    return formSuccessResponse( {quote: quote[0]});
+    // Returns an array of size one
+    let quote = await db.map(sql, [quote_id], a => a.json);
+    // get 0th element in the array
+    quote = quote[0];
+    // If no media exists, return an empty array instead of null
+    if (!quote.media) {
+      quote.media = [];
+    }
+    return formSuccessResponse( {quote: quote});
   } catch (e) {
     return formErrorResponse(e);
   }
