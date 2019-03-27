@@ -56,6 +56,7 @@ functions:
           path: members/
           method: get
           private: true
+          cors: true
   GetMember:
     handler: members.GetMember
     events:
@@ -63,6 +64,7 @@ functions:
           path: members/{member_id}
           method: get
           private: true
+          cors: true
   CreateMember:
     handler: members.CreateMember
     events:
@@ -70,6 +72,7 @@ functions:
           path: members/
           method: post
           private: true
+          cors: true
   UpdateMember:
     handler: members.UpdateMember
     events:
@@ -77,6 +80,7 @@ functions:
           path: members/{member_id}
           method: put
           private: true
+          cors: true
   LinkMemberMedia:
     handler: members.LinkMemberMedia
     events:
@@ -84,6 +88,7 @@ functions:
           path: members/{member_id}/LinkMedia/{media_id}
           method: get
           private: true
+          cors: true
   UnlinkMemberMedia:
     handler: members.UnlinkMemberMedia
     events:
@@ -91,6 +96,7 @@ functions:
           path: members/{member_id}/UnlinkMedia/{media_id}
           method: get
           private: true
+          cors: true
   ToggleMemberStatus:
     handler: members.ToggleMemberStatus
     events:
@@ -98,6 +104,7 @@ functions:
           path: members/{member_id}/ToggleMemberStatus
           method: get
           private: true
+          cors: true
 
 # QUOTE FUNCTIONS
   GetQuotes:
@@ -107,6 +114,7 @@ functions:
           path: quotes/
           method: get
           private: true
+          cors: true
   GetQuote:
     handler: quotes.GetQuote
     events:
@@ -114,6 +122,7 @@ functions:
           path: quotes/{quote_id}
           method: get
           private: true
+          cors: true
   CreateQuote:
     handler: quotes.CreateQuote
     events:
@@ -121,6 +130,7 @@ functions:
           path: quotes/
           method: post
           private: true
+          cors: true
   UpdateQuote:
     handler: quotes.UpdateQuote
     events:
@@ -128,6 +138,7 @@ functions:
           path: quotes/{quote_id}
           method: put
           private: true
+          cors: true
   LinkQuoteMedia:
     handler: quotes.LinkQuoteMedia
     events:
@@ -135,6 +146,7 @@ functions:
           path: quotes/{quote_id}/LinkMedia/{media_id}
           method: get
           private: true
+          cors: true
   UnlinkQuoteMedia:
     handler: quotes.UnlinkQuoteMedia
     events:
@@ -142,6 +154,7 @@ functions:
           path: quotes/{quote_id}/UnlinkMedia/{media_id}
           method: get
           private: true
+          cors: true
   ToggleQuoteVisibility:
     handler: quotes.ToggleQuoteVisibility
     events:
@@ -149,6 +162,7 @@ functions:
           path: quotes/{quote_id}/ToggleQuoteVisibility
           method: get
           private: true
+          cors: true
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

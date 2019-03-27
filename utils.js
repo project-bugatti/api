@@ -3,7 +3,11 @@ const pgp = require('pg-promise')();
 module.exports.formSuccessResponse = function (body, statusCode) {
     return {
         statusCode: statusCode || 200,
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+        }
     }
 };
 
@@ -16,10 +20,14 @@ module.exports.formErrorResponse = function (e, statusCode) {
             detail: e['detail'] || null,
             code: e['code'] || null
         }
-    };
+    }
     return {
         statusCode: statusCode || 400,
-        body: JSON.stringify({error})
+        body: JSON.stringify({error}),
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+        }
     }
 };
 
