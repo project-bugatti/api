@@ -71,7 +71,7 @@ module.exports.CreateQuote = async (event) => {
     is_visible: body.is_visible || true
   };
   const sql = 'INSERT INTO quotes(quote_id, quote_text, author_member_id, is_visible) ' +
-    'VALUES( $1, $2, $3, $4, $5 )';
+    'VALUES( $1, $2, $3, $4 )';
   try {
     await db.none(sql, [
       quote.quote_id,
