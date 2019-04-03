@@ -8,10 +8,12 @@ provider:
   name: aws
   runtime: nodejs8.10
   environment:
-    DB_HOST: ${file(./configs.yml):DB_HOST}
-    DB_NAME: ${file(./configs.yml):DB_NAME}
-    DB_USER: ${file(./configs.yml):DB_USER}
-    DB_PASSWORD: ${file(./configs.yml):DB_PASSWORD}
+    DB_HOST: ${file(./config.yml):DB_HOST}
+    DB_NAME: ${file(./config.yml):DB_NAME}
+    DB_USER: ${file(./config.yml):DB_USER}
+    DB_PASSWORD: ${file(./config.yml):DB_PASSWORD}
+    AUTH0_CLIENT_ID: ${file(./config.yml):AUTH0_CLIENT_ID}
+    AUTH0_PUBLIC_KEY_FILENAME: ${file(./config.yml):AUTH0_PUBLIC_KEY_FILENAME}
 
 # you can overwrite defaults here
 #  stage: dev
@@ -48,118 +50,121 @@ provider:
 
 functions:
 
+# Auth
+  authorize:
+    handler: utils.authorize
+
 # MEMBER FUNCTIONS
-  GetMembers:
-    handler: members.GetMembers
+  getMembers:
+    handler: members.getMembers
     events:
       - http:
           path: members/
           method: get
-          private: true
           cors: true
-  GetMember:
-    handler: members.GetMember
+  getMember:
+    handler: members.getMember
     events:
       - http:
           path: members/{member_id}
           method: get
-          private: true
           cors: true
-  CreateMember:
-    handler: members.CreateMember
+          authorizer: authorize
+  createMember:
+    handler: members.createMember
     events:
       - http:
           path: members/
           method: post
           private: true
           cors: true
-  UpdateMember:
-    handler: members.UpdateMember
+  updateMember:
+    handler: members.updateMember
     events:
       - http:
           path: members/{member_id}
           method: put
           private: true
           cors: true
-  LinkMemberMedia:
-    handler: members.LinkMemberMedia
+  linkMemberMedia:
+    handler: members.linkMemberMedia
     events:
       - http:
           path: members/{member_id}/LinkMedia/{media_id}
           method: get
           private: true
           cors: true
-  UnlinkMemberMedia:
-    handler: members.UnlinkMemberMedia
+  unlinkMemberMedia:
+    handler: members.unlinkMemberMedia
     events:
       - http:
-          path: members/{member_id}/UnlinkMedia/{media_id}
+          path: members/{member_id}/unlinkMedia/{media_id}
           method: get
           private: true
           cors: true
-  ToggleMemberStatus:
-    handler: members.ToggleMemberStatus
+  toggleMemberStatus:
+    handler: members.toggleMemberStatus
     events:
       - http:
-          path: members/{member_id}/ToggleMemberStatus
+          path: members/{member_id}/toggleMemberStatus
           method: get
           private: true
           cors: true
 
 # QUOTE FUNCTIONS
-  GetQuotes:
-    handler: quotes.GetQuotes
+  getQuotes:
+    handler: quotes.getQuotes
     events:
       - http:
           path: quotes/
           method: get
           private: true
           cors: true
-  GetQuote:
-    handler: quotes.GetQuote
+  getQuote:
+    handler: quotes.getQuote
     events:
       - http:
           path: quotes/{quote_id}
           method: get
           private: true
           cors: true
-  CreateQuote:
-    handler: quotes.CreateQuote
+  createQuote:
+    handler: quotes.createQuote
     events:
       - http:
           path: quotes/
           method: post
           private: true
           cors: true
-  UpdateQuote:
-    handler: quotes.UpdateQuote
+  updateQuote:
+    handler: quotes.updateQuote
     events:
       - http:
           path: quotes/{quote_id}
           method: put
           private: true
           cors: true
-  LinkQuoteMedia:
-    handler: quotes.LinkQuoteMedia
+  linkQuoteMedia:
+    handler: quotes.linkQuoteMedia
     events:
       - http:
-          path: quotes/{quote_id}/LinkMedia/{media_id}
+          path: quotes/{quote_id}/linkMedia/{media_id}
           method: get
           private: true
           cors: true
-  UnlinkQuoteMedia:
-    handler: quotes.UnlinkQuoteMedia
+  unlinkQuoteMedia:
+    handler: quotes.unlinkQuoteMedia
     events:
       - http:
-          path: quotes/{quote_id}/UnlinkMedia/{media_id}
+          path: quotes/{quote_id}/unlinkMedia/{media_id}
           method: get
           private: true
           cors: true
-  ToggleQuoteVisibility:
-    handler: quotes.ToggleQuoteVisibility
+  toggleQuoteVisibility:
+    handler: quotes.toggleQuoteVisibility
     events:
       - http:
-          path: quotes/{quote_id}/ToggleQuoteVisibility
+          path: quotes/{quote_id}/toggleQuoteVisibility
           method: get
           private: true
           cors: true

@@ -2,9 +2,10 @@
 const { db } = require('./utils');
 const { formSuccessResponse } = require('./utils');
 const { formErrorResponse } = require('./utils');
+const { authorize } = require('./utils');
 const uuidv1 = require('uuid/v1');
 
-module.exports.GetMembers = async (event) => {
+module.exports.getMembers = async (event) => {
   let isActive = true;
   if (event.queryStringParameters && event.queryStringParameters.isActive) {
     isActive = event.queryStringParameters.isActive;
@@ -21,41 +22,47 @@ module.exports.GetMembers = async (event) => {
 /*
   Get member information and all quotes and media linked to member
 */
-module.exports.GetMember = async (event) => {
-  const member_id = event.pathParameters.member_id;
-  const sql =
-    " SELECT json_build_object('member_id', m.member_id, 'firstname', m.firstname, 'lastname', m.lastname,  " +
-    " 'nickname', m.nickname, 'phone', m.phone, 'is_active', m.is_active, 'quotes', " +
-    "   (SELECT json_agg(json_build_object('quote_id', q.quote_id, 'quote_text', q.quote_text)) " +
-    "   FROM quotes q WHERE q.author_member_id = m.member_id)," +
-    " 'media', " +
-    "   (SELECT json_agg(json_build_object('media_id', media.media_id, 'title', media.title,  " +
-    "   'description', media.description, 'file_type', media.file_type, 'media_date', media.media_date))  " +
-    "   FROM media, members_media " +
-    "   WHERE media.media_id = members_media.media_id " +
-    "   AND members_media.member_id = m.member_id " +
-    "   )" +
-    " ) json " +
-    " FROM members m WHERE m.member_id = $1";
-  try {
-    // Returns an array of size one
-    let member = await db.map(sql, [member_id], a => a.json);
-    // get 0th element in the array
-    member = member[0];
-    // If no quotes or media exists, return empty arrays instead of null
-    if (!member.quotes) {
-      member.quotes = [];
-    }
-    if (!member.media) {
-      member.media = [];
-    }
-    return formSuccessResponse({member: member});
-  } catch (e) {
-    return formErrorResponse(e);
-  }
+module.exports.getMember = event => {
+  return authorize(event)
+    .then( async () => {
+      const member_id = event.pathParameters.member_id;
+      const sql =
+        " SELECT json_build_object('member_id', m.member_id, 'firstname', m.firstname, 'lastname', m.lastname,  " +
+        " 'nickname', m.nickname, 'phone', m.phone, 'is_active', m.is_active, 'quotes', " +
+        "   (SELECT json_agg(json_build_object('quote_id', q.quote_id, 'quote_text', q.quote_text)) " +
+        "   FROM quotes q WHERE q.author_member_id = m.member_id)," +
+        " 'media', " +
+        "   (SELECT json_agg(json_build_object('media_id', media.media_id, 'title', media.title,  " +
+        "   'description', media.description, 'file_type', media.file_type, 'media_date', media.media_date))  " +
+        "   FROM media, members_media " +
+        "   WHERE media.media_id = members_media.media_id " +
+        "   AND members_media.member_id = m.member_id " +
+        "   )" +
+        " ) json " +
+        " FROM members m WHERE m.member_id = $1";
+      try {
+        // Returns an array of size one
+        let member = await db.map(sql, [member_id], a => a.json);
+        // get 0th element in the array
+        member = member[0];
+        // If no quotes or media exists, return empty arrays instead of null
+        if (!member.quotes) {
+          member.quotes = [];
+        }
+        if (!member.media) {
+          member.media = [];
+        }
+        return formSuccessResponse({member: member});
+      } catch (e) {
+        return formErrorResponse(e);
+      }
+    })
+    .catch( e => {
+      return formErrorResponse(e);
+    });
 };
 
-module.exports.CreateMember = async (event) => {
+module.exports.createMember = async (event) => {
   let body;
   try {
     body = JSON.parse(event.body);
@@ -95,7 +102,7 @@ module.exports.CreateMember = async (event) => {
   }
 };
 
-module.exports.UpdateMember = async (event) => {
+module.exports.updateMember = async (event) => {
   const member_id = event.pathParameters.member_id;
   let body = {};
   try {
@@ -140,7 +147,7 @@ module.exports.UpdateMember = async (event) => {
   }
 };
 
-module.exports.LinkMemberMedia = async (event) => {
+module.exports.linkMemberMedia = async (event) => {
   const member_id = event.pathParameters.member_id;
   const media_id = event.pathParameters.media_id;
 
@@ -153,7 +160,7 @@ module.exports.LinkMemberMedia = async (event) => {
   }
 };
 
-module.exports.UnlinkMemberMedia = async (event) => {
+module.exports.unlinkMemberMedia = async (event) => {
   const member_id = event.pathParameters.member_id;
   const media_id = event.pathParameters.media_id;
 
@@ -174,7 +181,7 @@ module.exports.UnlinkMemberMedia = async (event) => {
   }
 };
 
-module.exports.ToggleMemberStatus = async (event) => {
+module.exports.toggleMemberStatus = async (event) => {
   const member_id = event.pathParameters.member_id;
   const sql = 'UPDATE members SET is_active = NOT is_active WHERE member_id = $1 RETURNING is_active';
   try {

@@ -1,4 +1,6 @@
 const pgp = require('pg-promise')();
+const jwt = require('jsonwebtoken');
+const fs = require('fs');
 
 module.exports.formSuccessResponse = function (body, statusCode) {
     return {
@@ -29,6 +31,39 @@ module.exports.formErrorResponse = function (e, statusCode) {
             'Access-Control-Allow-Credentials': true,
         }
     }
+};
+
+module.exports.authorize = (event) => {
+    const AUTH0_CLIENT_ID = process.env.AUTH0_CLIENT_ID;
+    const AUTH0_PUBLIC_KEY_FILENAME = process.env.AUTH0_PUBLIC_KEY_FILENAME;
+    const UNAUTHORIZED = { message: 'Unauthorized' };
+
+    return new Promise( (onSuccess, onFailure) => {
+        if (!event.authorizationToken) {
+            onFailure(UNAUTHORIZED);
+        }
+
+        const tokenParts = event['authorizationToken'].split(' ');
+        const tokenValue = tokenParts[1];
+
+        if (!(tokenParts[0].toLowerCase() === 'bearer' && tokenValue)) {
+            // no auth token!
+            onFailure(UNAUTHORIZED);
+        }
+
+        const options = { audience: AUTH0_CLIENT_ID };
+        try {
+            let cert = fs.readFileSync(AUTH0_PUBLIC_KEY_FILENAME);
+            jwt.verify(tokenValue, cert, options, (verifyError, decoded) => {
+                if (verifyError) {
+                    onFailure(UNAUTHORIZED);
+                }
+                onSuccess();
+            })
+        } catch (e) {
+            onFailure(UNAUTHORIZED)
+        }
+    });
 };
 
 module.exports.db = pgp({

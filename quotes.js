@@ -4,7 +4,7 @@ const { formSuccessResponse } = require('./utils');
 const { formErrorResponse } = require('./utils');
 const uuidv1 = require('uuid/v1');
 
-module.exports.GetQuotes = async () => {
+module.exports.getQuotes = async () => {
   const sql = "SELECT json_build_object('quote_id', q.quote_id, 'quote_text', q.quote_text, 'member', " +
     " (SELECT json_build_object('member_id', m.member_id, 'firstname', m.firstname, 'lastname', m.lastname, " +
     " 'nickname', m.nickname) " +
@@ -20,7 +20,7 @@ module.exports.GetQuotes = async () => {
 /*
   Get quote information, its author-member information, and all media related to it
 */
-module.exports.GetQuote = async (event) => {
+module.exports.getQuote = async (event) => {
   const quote_id = event.pathParameters.quote_id;
   const sql =
     " SELECT json_build_object( 'quote_id', q.quote_id, 'quote_text', q.quote_text, 'member', " +
@@ -52,7 +52,7 @@ module.exports.GetQuote = async (event) => {
   }
 };
 
-module.exports.CreateQuote = async (event) => {
+module.exports.createQuote = async (event) => {
   let body;
   try {
     body = JSON.parse(event.body);
@@ -88,7 +88,7 @@ module.exports.CreateQuote = async (event) => {
 /*
   Change a quote's author or text
 */
-module.exports.UpdateQuote = async (event) => {
+module.exports.updateQuote = async (event) => {
   const quote_id = event.pathParameters.quote_id;
   let body;
   try {
@@ -132,7 +132,7 @@ module.exports.UpdateQuote = async (event) => {
 /*
   Link a media item to a quote
 */
-module.exports.LinkQuoteMedia = async (event) => {
+module.exports.linkQuoteMedia = async (event) => {
   const quote_id = event.pathParameters.quote_id;
   const media_id = event.pathParameters.media_id;
 
@@ -148,7 +148,7 @@ module.exports.LinkQuoteMedia = async (event) => {
 /*
   Remove the link between a quote and media item
 */
-module.exports.UnlinkQuoteMedia = async (event) => {
+module.exports.unlinkQuoteMedia = async (event) => {
   const quote_id = event.pathParameters.quote_id;
   const media_id = event.pathParameters.media_id;
 
@@ -169,7 +169,7 @@ module.exports.UnlinkQuoteMedia = async (event) => {
   }
 };
 
-module.exports.ToggleQuoteVisibility = async (event) => {
+module.exports.toggleQuoteVisibility = async (event) => {
   const quote_id = event.pathParameters.quote_id;
   const sql = 'UPDATE quotes SET is_visible = NOT is_visible WHERE quote_id = $1 RETURNING is_visible';
   try {
