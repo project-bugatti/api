@@ -39,11 +39,11 @@ module.exports.authorize = (event) => {
     const UNAUTHORIZED = { message: 'Unauthorized' };
 
     return new Promise( (onSuccess, onFailure) => {
-        if (!event.authorizationToken) {
+        if (!event.headers.Authorization) {
             onFailure(UNAUTHORIZED);
         }
 
-        const tokenParts = event['authorizationToken'].split(' ');
+        const tokenParts = event.headers.Authorization.split(' ');
         const tokenValue = tokenParts[1];
 
         if (!(tokenParts[0].toLowerCase() === 'bearer' && tokenValue)) {
