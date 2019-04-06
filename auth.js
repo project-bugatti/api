@@ -63,7 +63,8 @@ module.exports.setToken = (event, context, callback) => {
     if (error) {
       callback(formErrorResponse(error));
     } else {
-      callback(null, formSuccessResponse());
+      const session = {session_id}
+      callback(null, formSuccessResponse({session}));
     }
   });
 
