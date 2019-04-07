@@ -1,5 +1,5 @@
 {
-  "name": "bugatti-api",
+  "name": "thegc-api",
   "version": "1.0.0",
   "description": "A serverless HTTP API configured for AWS Lambda",
   "main": "handler.js",
