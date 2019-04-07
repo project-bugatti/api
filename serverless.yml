@@ -50,9 +50,23 @@ provider:
 
 functions:
 
-# Auth
+# AUTH FUNCTIONS
   authorize:
-    handler: utils.authorize
+    handler: auth.authorize
+  getToken:
+    handler: auth.getToken
+    events:
+      - http:
+          path: session/{session_id}
+          method: get
+          cors: true
+  setToken:
+    handler: auth.setToken
+    events:
+      - http:
+          path: session
+          method: post
+          cors: true
 
 # MEMBER FUNCTIONS
   getMembers:
