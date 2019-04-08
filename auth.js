@@ -16,7 +16,6 @@ module.exports.getToken = (event, context, callback) => {
   const dynamo = new AWS.DynamoDB({apiVersion: AWS_OPTIONS.apiVersion});
 
   const session_id = event.pathParameters.session_id;
-
   const params = {
     TableName: AWS_OPTIONS.tableName,
     Key: {
@@ -26,17 +25,22 @@ module.exports.getToken = (event, context, callback) => {
 
   dynamo.getItem(params, (error, data) => {
     if (error) {
-      callback(formErrorResponse(error));
-    } else {
-      const session = { access_token: data.Item.access_token.S };
-      callback(null, formSuccessResponse({session}));
+      return callback(formErrorResponse(error));
     }
+
+    if (!data.hasOwnProperty("Item") || !data.Item.hasOwnProperty("access_token")) {
+      const error = {message: 'Invalid session ID'};
+      return callback(formErrorResponse(error));
+    }
+
+    const session = { access_token: data.Item.access_token.S };
+    callback(null, formSuccessResponse({session}));
   });
 };
 
 module.exports.setToken = (event, context, callback) => {
   AWS.config.update({region: AWS_OPTIONS.region});
-  var dynamo = new AWS.DynamoDB({apiVersion: AWS_OPTIONS.apiVersion});
+  const dynamo = new AWS.DynamoDB({apiVersion: AWS_OPTIONS.apiVersion});
 
   const session_id = uuidv4();
   let body;
@@ -48,7 +52,7 @@ module.exports.setToken = (event, context, callback) => {
 
   if(body.access_token == null) {
     const error = { message: 'Missing a required body parameter' };
-    callback(formErrorResponse(error), null);
+    return callback(formErrorResponse(error));
   }
 
   var params = {
@@ -61,11 +65,11 @@ module.exports.setToken = (event, context, callback) => {
 
   dynamo.putItem(params, (error) => {
     if (error) {
-      callback(formErrorResponse(error));
-    } else {
-      const session = {session_id};
-      callback(null, formSuccessResponse({session}));
+      return callback(formErrorResponse(error));
     }
+
+    const session = {session_id: session_id};
+    callback(null, formSuccessResponse({session}));
   });
 };
 
