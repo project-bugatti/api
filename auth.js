@@ -25,12 +25,12 @@ module.exports.getToken = (event, context, callback) => {
 
   dynamo.getItem(params, (error, data) => {
     if (error) {
-      return callback(formErrorResponse(error));
+      return callback(error);
     }
 
     if (!data.hasOwnProperty("Item") || !data.Item.hasOwnProperty("access_token")) {
-      const error = {message: 'Invalid session ID'};
-      return callback(formErrorResponse(error));
+      const error = {message: "Invalid session ID"};
+      return callback(null, formErrorResponse(error));
     }
 
     const session = { access_token: data.Item.access_token.S };
@@ -39,6 +39,11 @@ module.exports.getToken = (event, context, callback) => {
 };
 
 module.exports.setToken = (event, context, callback) => {
+  if (event.body == null || !event.body.hasOwnProperty('access_token')) {
+    const error = { message: 'Missing a required body parameter' };
+    return callback(null, formErrorResponse(error));
+  }
+
   AWS.config.update({region: AWS_OPTIONS.region});
   const dynamo = new AWS.DynamoDB({apiVersion: AWS_OPTIONS.apiVersion});
 
@@ -48,11 +53,6 @@ module.exports.setToken = (event, context, callback) => {
     body = JSON.parse(event.body);
   } catch (e) {
     body = event.body;
-  }
-
-  if(body.access_token == null) {
-    const error = { message: 'Missing a required body parameter' };
-    return callback(formErrorResponse(error));
   }
 
   var params = {
@@ -65,7 +65,7 @@ module.exports.setToken = (event, context, callback) => {
 
   dynamo.putItem(params, (error) => {
     if (error) {
-      return callback(formErrorResponse(error));
+      return callback(error);
     }
 
     const session = {session_id: session_id};
