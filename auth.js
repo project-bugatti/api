@@ -48,7 +48,7 @@ module.exports.setToken = (event, context, callback) => {
 
   if(body.access_token == null) {
     const error = { message: 'Missing a required body parameter' };
-    callback(formErrorResponse(error));
+    callback(formErrorResponse(error), null);
   }
 
   var params = {
