@@ -28,7 +28,7 @@ module.exports.getToken = (event, context, callback) => {
     if (error) {
       callback(formErrorResponse(error));
     } else {
-      const session = { token: data.Item.token.S };
+      const session = { access_token: data.Item.access_token.S };
       callback(null, formSuccessResponse({session}));
     }
   });
@@ -67,7 +67,6 @@ module.exports.setToken = (event, context, callback) => {
       callback(null, formSuccessResponse({session}));
     }
   });
-
 };
 
 module.exports.authorize = (event) => {
