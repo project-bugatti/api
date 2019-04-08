@@ -46,8 +46,8 @@ module.exports.setToken = (event, context, callback) => {
     body = event.body;
   }
 
-  if(body.token == null) {
-    const error = { message: 'Missing a required body paramter' };
+  if(body.access_token == null) {
+    const error = { message: 'Missing a required body parameter' };
     callback(formErrorResponse(error));
   }
 
@@ -55,7 +55,7 @@ module.exports.setToken = (event, context, callback) => {
     TableName: AWS_OPTIONS.tableName,
     Item: {
       'session_id' : {S: session_id},
-      'token' : {S: body.token}
+      'access_token' : {S: body.access_token}
     }
   };
 
@@ -63,7 +63,7 @@ module.exports.setToken = (event, context, callback) => {
     if (error) {
       callback(formErrorResponse(error));
     } else {
-      const session = {session_id}
+      const session = {session_id};
       callback(null, formSuccessResponse({session}));
     }
   });
