@@ -33,13 +33,24 @@ module.exports.getToken = (event, context, callback) => {
       return callback(null, formErrorResponse(error));
     }
 
-    const session = { access_token: data.Item.access_token.S };
+    const session = {
+      access_token: data.Item.access_token.S,
+      expires_at: data.Item.expires_at.N
+    };
     callback(null, formSuccessResponse({session}));
   });
 };
 
 module.exports.setToken = (event, context, callback) => {
-  if (event.body == null || !event.body.hasOwnProperty('access_token')) {
+
+  let body = {};
+  try {
+    body = JSON.parse(event.body);
+  } catch (e) {
+    body = event.body;
+  }
+
+  if (body == null || !body.hasOwnProperty('access_token') || !body.hasOwnProperty('expires_at')) {
     const error = { message: 'Missing a required body parameter' };
     return callback(null, formErrorResponse(error));
   }
@@ -48,18 +59,19 @@ module.exports.setToken = (event, context, callback) => {
   const dynamo = new AWS.DynamoDB({apiVersion: AWS_OPTIONS.apiVersion});
 
   const session_id = uuidv4();
-  let body;
-  try {
-    body = JSON.parse(event.body);
-  } catch (e) {
-    body = event.body;
-  }
 
   var params = {
     TableName: AWS_OPTIONS.tableName,
     Item: {
-      'session_id' : {S: session_id},
-      'access_token' : {S: body.access_token}
+      'session_id' : {
+        S: session_id
+      },
+      'access_token' : {
+        S: body.access_token
+      },
+      'expires_at' : {
+        N: body.expires_at
+      }
     }
   };
 
