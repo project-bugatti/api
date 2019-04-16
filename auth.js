@@ -28,7 +28,10 @@ module.exports.getToken = (event, context, callback) => {
       return callback(error);
     }
 
-    if (!data.hasOwnProperty("Item") || !data.Item.hasOwnProperty("access_token")) {
+    if (!data.hasOwnProperty("Item")
+      || !data.Item.hasOwnProperty("access_token")
+      || !data.Item.hasOwnProperty("id_token")
+    ) {
       const error = {message: "Invalid session ID"};
       return callback(null, formErrorResponse(error));
     }
@@ -50,7 +53,11 @@ module.exports.setToken = (event, context, callback) => {
     body = event.body;
   }
 
-  if (body == null || !body.hasOwnProperty('access_token') || !body.hasOwnProperty('expires_at')) {
+  if (body == null
+    || !body.hasOwnProperty('access_token')
+    || !body.hasOwnProperty('expires_at')
+    || !body.hasOwnProperty('id_token')
+  ) {
     const error = { message: 'Missing a required body parameter' };
     return callback(null, formErrorResponse(error));
   }
@@ -71,6 +78,9 @@ module.exports.setToken = (event, context, callback) => {
       },
       'expires_at' : {
         N: body.expires_at
+      },
+      'id_token' : {
+        S: body.id_token
       }
     }
   };

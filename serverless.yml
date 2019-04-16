@@ -64,7 +64,7 @@ functions:
     handler: auth.setToken
     events:
       - http:
-          path: session
+          path: session/
           method: post
           cors: true
 
