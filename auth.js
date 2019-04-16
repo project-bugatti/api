@@ -38,6 +38,7 @@ module.exports.getToken = (event, context, callback) => {
 
     const session = {
       access_token: data.Item.access_token.S,
+      id_token: data.Item.id_token.S,
       expires_at: data.Item.expires_at.N
     };
     callback(null, formSuccessResponse({session}));
@@ -87,7 +88,7 @@ module.exports.setToken = (event, context, callback) => {
 
   dynamo.putItem(params, (error) => {
     if (error) {
-      return callback(error);
+      callback(null, formErrorResponse(error));
     }
 
     const session = {session_id: session_id};
