@@ -50,31 +50,18 @@ provider:
 
 functions:
 
-# AUTH FUNCTIONS
+  # AUTH FUNCTIONS
   authorize:
     handler: auth.authorize
-  getToken:
-    handler: auth.getToken
-    events:
-      - http:
-          path: session/{session_id}
-          method: get
-          cors: true
-  setToken:
-    handler: auth.setToken
-    events:
-      - http:
-          path: session/
-          method: post
-          cors: true
 
-# MEMBER FUNCTIONS
+  # MEMBER FUNCTIONS
   getMembers:
     handler: members.getMembers
     events:
       - http:
           path: members/
           method: get
+          private: true
           cors: true
   getMember:
     handler: members.getMember
@@ -82,8 +69,8 @@ functions:
       - http:
           path: members/{member_id}
           method: get
+          private: true
           cors: true
-          authorizer: authorize
   createMember:
     handler: members.createMember
     events:
@@ -92,6 +79,8 @@ functions:
           method: post
           private: true
           cors: true
+          authorizer: authorize
+
   updateMember:
     handler: members.updateMember
     events:
@@ -100,6 +89,7 @@ functions:
           method: put
           private: true
           cors: true
+          authorizer: authorize
   linkMemberMedia:
     handler: members.linkMemberMedia
     events:
@@ -108,6 +98,7 @@ functions:
           method: get
           private: true
           cors: true
+          authorizer: authorize
   unlinkMemberMedia:
     handler: members.unlinkMemberMedia
     events:
@@ -116,6 +107,7 @@ functions:
           method: get
           private: true
           cors: true
+          authorizer: authorize
   toggleMemberStatus:
     handler: members.toggleMemberStatus
     events:
@@ -124,8 +116,9 @@ functions:
           method: get
           private: true
           cors: true
+          authorizer: authorize
 
-# QUOTE FUNCTIONS
+  # QUOTE FUNCTIONS
   getQuotes:
     handler: quotes.getQuotes
     events:
@@ -150,6 +143,7 @@ functions:
           method: post
           private: true
           cors: true
+          authorizer: authorize
   updateQuote:
     handler: quotes.updateQuote
     events:
@@ -158,6 +152,7 @@ functions:
           method: put
           private: true
           cors: true
+          authorizer: authorize
   linkQuoteMedia:
     handler: quotes.linkQuoteMedia
     events:
@@ -166,6 +161,7 @@ functions:
           method: get
           private: true
           cors: true
+          authorizer: authorize
   unlinkQuoteMedia:
     handler: quotes.unlinkQuoteMedia
     events:
@@ -174,6 +170,7 @@ functions:
           method: get
           private: true
           cors: true
+          authorizer: authorize
   toggleQuoteVisibility:
     handler: quotes.toggleQuoteVisibility
     events:
@@ -182,6 +179,7 @@ functions:
           method: get
           private: true
           cors: true
+          authorizer: authorize
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

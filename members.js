@@ -2,7 +2,7 @@
 const { db } = require('./utils');
 const { formSuccessResponse } = require('./utils');
 const { formErrorResponse } = require('./utils');
-const { authorize } = require('./utils');
+const { authorize } = require('./auth');
 const uuidv1 = require('uuid/v1');
 
 module.exports.getMembers = async (event) => {
