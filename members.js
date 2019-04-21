@@ -1,7 +1,5 @@
 'use strict';
-const { db } = require('./utils');
-const { formSuccessResponse } = require('./utils');
-const { formErrorResponse } = require('./utils');
+const { db, formSuccessResponse, formErrorResponse } = require('./utils');
 const { authorize } = require('./auth');
 const uuidv1 = require('uuid/v1');
 
@@ -72,7 +70,7 @@ module.exports.createMember = async (event) => {
 
   const firstname = body.firstname, lastname = body.lastname, phone = body.phone;
   if (firstname == null || lastname == null || phone == null) {
-    const error = { name: 'error', detail: 'Missing a required body parameter' };
+    const error = { message: 'Missing a required body parameter' };
     return formErrorResponse(error);
   }
 

@@ -8,12 +8,13 @@ provider:
   name: aws
   runtime: nodejs8.10
   environment:
-    DB_HOST: ${file(./config.yml):DB_HOST}
-    DB_NAME: ${file(./config.yml):DB_NAME}
-    DB_USER: ${file(./config.yml):DB_USER}
-    DB_PASSWORD: ${file(./config.yml):DB_PASSWORD}
-    AUTH0_CLIENT_ID: ${file(./config.yml):AUTH0_CLIENT_ID}
-    AUTH0_PUBLIC_KEY_FILENAME: ${file(./config.yml):AUTH0_PUBLIC_KEY_FILENAME}
+    DB_HOST: '${file(./config.yml):DB_HOST}'
+    DB_NAME: '${file(./config.yml):DB_NAME}'
+    DB_USER: '${file(./config.yml):DB_USER}'
+    DB_PASSWORD: '${file(./config.yml):DB_PASSWORD}'
+    AUTH0_CLIENT_ID: '${file(./config.yml):AUTH0_CLIENT_ID}'
+    AUTH0_PUBLIC_KEY_FILENAME: '${file(./config.yml):AUTH0_PUBLIC_KEY_FILENAME}'
+    MEDIA_BUCKET_NAME: '${file(./config.yml):MEDIA_BUCKET_NAME}'
 
 # you can overwrite defaults here
 #  stage: dev
@@ -53,6 +54,16 @@ functions:
   # AUTH FUNCTIONS
   authorize:
     handler: auth.authorize
+
+  # MEDIA FUNCTIONS
+  getPresignedUrl:
+    handler: media.getPresignedUrl
+    events:
+      - http:
+          path: media/presigned
+          method: get
+          private: false
+          cors: true
 
   # MEMBER FUNCTIONS
   getMembers:
