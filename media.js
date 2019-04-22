@@ -45,11 +45,64 @@ module.exports.getPresignedUrl = async event => {
   });
 
   const media = {
-    preSignedUrl: url,
+    presignedUrl: url,
     media_id
   };
 
-  console.log(media);
-
   return formSuccessResponse({media});
+};
+
+module.exports.saveMedia = async event => {
+  let body;
+  try {
+    body = JSON.parse(event.body);
+  } catch (e) {
+    body = event.body;
+  }
+
+  if (body.media_id == null || body.file_type == null) {
+    const error = {message: "Missing a required body parameter"};
+    return formErrorResponse(error);
+  }
+
+  const media = {
+    media_id: body.media_id,
+    file_type: body.file_type,
+    title: body.title || null,
+    description: body.description || null,
+    media_date: body.media_date || null,
+    is_visible: body.is_visible || true
+  };
+
+  const sql = 'INSERT INTO media (media_id, file_type, title, description, media_date, is_visible) ' +
+    'VALUES ( $1, $2, $3, $4, $5, $6 )';
+
+  try {
+    await db.none(sql, [
+      media.media_id,
+      media.file_type,
+      media.title,
+      media.description,
+      media.media_date,
+      media.is_visible
+    ]);
+    return formSuccessResponse({media});
+  } catch (e) {
+    console.log(media);
+    return formSuccessResponse(e);
+  }
+};
+
+module.exports.getMedia = async event => {
+  let isVisible = true;
+  if (event.queryStringParameters && event.queryStringParameters.isVisible) {
+    isVisible = event.queryStringParameters.isVisible;
+  }
+
+  try {
+    const media = await db.any('SELECT * FROM media WHERE is_visible = $1', [isVisible]);
+    return formSuccessResponse({media} );
+  } catch (e) {
+    return formErrorResponse(e);
+  }
 };

@@ -56,6 +56,14 @@ functions:
     handler: auth.authorize
 
   # MEDIA FUNCTIONS
+  getMedia:
+    handler: media.getMedia
+    events:
+      - http:
+          path: media
+          method: get
+          private: false
+          cors: true
   getPresignedUrl:
     handler: media.getPresignedUrl
     events:
@@ -64,7 +72,14 @@ functions:
           method: get
           private: false
           cors: true
-
+  saveMedia:
+    handler: media.saveMedia
+    events:
+      - http:
+          path: media
+          method: post
+          private: true
+          cors: true
   # MEMBER FUNCTIONS
   getMembers:
     handler: members.getMembers
