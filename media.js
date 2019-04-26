@@ -13,12 +13,15 @@ module.exports.getPresignedUrl = async event => {
   }
 
   // Acceptable file types
-  const EXTENSION_JPEG = "jpeg", EXTENSION_PNG = "png", EXTENSION_GIF = "gif";
+  const EXTENSION_JPG = "jpg", EXTENSION_JPEG = "jpeg", EXTENSION_PNG = "png", EXTENSION_GIF = "gif";
   // Respective Content-Type header values
   const CONTENT_JPEG = "image/jpeg", CONTENT_PNG = "image/png", CONTENT_GIF = "image/gif";
 
   let contentType;
   switch (fileExtension.toLowerCase()) {
+    case EXTENSION_JPG:
+      contentType = CONTENT_JPEG;
+      break;
     case EXTENSION_JPEG:
       contentType = CONTENT_JPEG;
       break;
